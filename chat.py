@@ -31,7 +31,7 @@ class ChatApp(npyscreen.NPSAppManaged):
         jsonFile.close()
 
         if os.name == "nt":
-            os.system("title P2P-Chat by flowei") # Set window title on windows
+            os.system("title P2P-Chat") # Set window title on windows
 
         self.ChatForm = self.addForm('MAIN', ChatForm, name='Peer-2-Peer Chat') # Add ChatForm as the main form of npyscreen
 
@@ -205,13 +205,6 @@ class ChatApp(npyscreen.NPSAppManaged):
         log.close()
         self.messageLog = []
         self.sysMsg(self.lang['savedLog'].format(date))
-    
-    # EASTER EGGGGGGGG
-    def flowei(self):
-        if os.name == 'nt':
-            os.system("start https://flowei.tech")
-        else:
-            os.system("xdg-open https://flowei.tech")
 
     #Method to clear the chat feed
     def clearChat(self):

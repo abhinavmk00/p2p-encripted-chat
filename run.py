@@ -25,6 +25,7 @@ else:
                 for module in missingModules:
                     if module == "curses" and os.name == "nt":
                         print("Curses needs to be installed manually. See https//github.com/F1xw/p2p-chat#Requirements")
+                        module = "windows-curses"
                         continue
                     try:
                         pip = subprocess.Popen([sys.executable, "-m", "pip", "install", module])
