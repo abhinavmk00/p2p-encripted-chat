@@ -1,3 +1,5 @@
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.primitives.ciphers import (Cipher, algorithms, modes)
 import npyscreen
 import sys
 import lib.server as server
@@ -78,7 +80,6 @@ class ChatApp(npyscreen.NPSAppManaged):
             "status": [self.getStatus, 0],
             "log": [self.logChat, 0],
             "help": [self.commandHelp, 0],
-            "flowei": [self.flowei, 0],
             "lang": [self.changeLang, 1]
         }
 
@@ -159,6 +160,26 @@ class ChatApp(npyscreen.NPSAppManaged):
         else:
             self.ChatForm.chatFeed.values.append('[SYSTEM] '+str(msg))
         self.ChatForm.chatFeed.display()
+
+    # Method to encrypt messages
+    def encrypt(p_text, key):
+        backend = default_backend()
+        cipher = Cipher(algorithms.AES(key),modes.CFB(TestMeInitVector),backend=backend)
+        padder = padding.PKCS7(128).padder() # 128 bit
+        text = padder.update(p_text) + padder.finalize()
+        encryptor = cipher.encryptor()
+        c_text = encryptor.update(text) + encryptor.finalize()
+        return c_text
+
+    # Method to decrypt messages
+    def decrypt(p_text, key):
+        backend = default_backend()
+        cipher = Cipher(algorithms.AES(key),modes.CFB(TestMeInitVector),backend=backend)
+        padder = padding.PKCS7(128).padder() # 128 bit
+        text = padder.update(p_text) + padder.finalize()
+        decryptor = cipher.decryptor()
+        c_text = decryptor.update(text) + decryptor.finalize()
+        return c_text
 
     # Method to send a message to a connected peer
     def sendMessage(self, _input):
