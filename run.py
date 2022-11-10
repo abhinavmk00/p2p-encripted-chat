@@ -3,7 +3,7 @@ import importlib.util
 import subprocess
 import os
 
-reqModules = ['socket', 'threading', 'curses', 'npyscreen', 'time', 'datetime', 'pyperclip'] # Array with required modules
+reqModules = ['socket', 'threading', 'curses', 'npyscreen', 'time', 'datetime', 'pyperclip','cryptography'] # Array with required modules
 missingModules = [] # Array to fill with missing modules
 
 if sys.version_info < (3, 3): # Check the python version

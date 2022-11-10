@@ -1,5 +1,10 @@
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import (Cipher, algorithms, modes)
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.primitives import serialization
+import binascii
 import npyscreen
 import sys
 import lib.server as server
@@ -57,8 +62,11 @@ class ChatApp(npyscreen.NPSAppManaged):
         self.historyLog = [] # Array for message log
         self.messageLog = [] # Array for chat log
         self.historyPos = 0 # Int for current position in message history
-
-        
+        self.private_key = ec.generate_private_key(ec.SECP384R1())
+        self.public_key = self.private_key.public_key().public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
+        self.peer_public_key = "0"
+        self.shared_key = "0"
+        self.derived_key = "0"
 
         # Start Server and Client threads
         self.chatServer = server.Server(self)
@@ -80,7 +88,8 @@ class ChatApp(npyscreen.NPSAppManaged):
             "status": [self.getStatus, 0],
             "log": [self.logChat, 0],
             "help": [self.commandHelp, 0],
-            "lang": [self.changeLang, 1]
+            "lang": [self.changeLang, 1],
+            "keygen": [self.keygen, 0]
         }
 
         # Dictionary for command aliases
@@ -90,6 +99,12 @@ class ChatApp(npyscreen.NPSAppManaged):
             "q": "quit",
             "connback": "connectback"
         }
+
+    def keygen(self):
+        with open("peer_public_key.pem","rb") as f:
+            public_key=f.read()
+        self.shared_key = self.private_key.exchange(ec.ECDH(), serialization.load_pem_public_key(public_key))
+        self.derived_key = HKDF(algorithm=hashes.SHA256(), length=32, salt=None, info=b'handshake data',).derive(self.shared_key)
 
     # Method to change interface language. Files need to be located in lang/
     def changeLang(self, args):

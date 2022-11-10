@@ -51,6 +51,19 @@ class Server(threading.Thread): # Server object is type thread so that it can ru
         self.hasConnection = True # Set connection status to true
         
         self.handleInit(init)
+
+        #recv_pem
+        file = open("peer_public_key.pem", "wb")
+        file_bytes = b""
+        done = False
+        while not done:
+            data = conn.recv(1024)
+            if file_bytes[-5:]== b"<END>":
+                done = True
+            else:
+                file_bytes += data
+        file.write(file_bytes)
+        file.close()
         
         while True: # Receive loop
             if len(self.chatApp.ChatForm.chatFeed.values) > self.chatApp.ChatForm.y - 10:
@@ -70,6 +83,19 @@ class Server(threading.Thread): # Server object is type thread so that it can ru
                 self.chatApp.ChatForm.chatFeed.values.append("{0} >  {1}".format(self.chatApp.peer, data.decode()))
                 self.chatApp.ChatForm.chatFeed.display()
 
+    """def recv_pem(self):
+        file_name = conn.recv(1024).decode()
+        file = open(file_name, "wb")
+        file_bytes = b""
+        done = False
+        while not done:
+            data = conn.recv(1024)
+            if file_bytes[-5:]== b"<END>":
+                done = True
+            else:
+                file_bytes += data
+        file.write(file_bytes)
+        file.close()"""
 
     def handleInit(self, init):
         if not init: # If initial information is empty, set peer vars to unknown
